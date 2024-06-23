@@ -6,7 +6,9 @@ const Campground=require('./models/campground');//Model import from models folde
 const methodOverride = require('method-override');//for typecasting post form method into patch/put & delete
 const catchAsync = require('./utils/CatchAsync');////Async Error hanadling function
 const ExpressError = require('./utils/ExpressError');//Custom Error handaling class
-
+const Joi = require('joi');//for Server side validations
+const {campgroundSchema}=require('./schemas')//Using serever side Schema
+const Review=require('./models/review');//Review Model
 
 //Db connection
 const dburl='mongodb://localhost:27017/yelp-camp';//url shortForm
@@ -31,7 +33,21 @@ app.set('views',path.join(__dirname,'views'));
 app.use(express.urlencoded({extended:true}));
 // override with POST having ?_method=DELETE/PATCH
 app.use(methodOverride('_method'))
-
+//for server side validation
+const validateCampground = (req,res,next)=>
+{
+    // console.log(req)
+    const {error}=campgroundSchema.validate(req.body);
+    if(error)
+    {
+        const message=error.details.map(element=>element.message).join(',')
+        throw new ExpressError(message,400)
+    } 
+    else
+    {
+        next();
+    }
+}    
 
 app.get('/',(req,res)=>{
     res.render('home.ejs');
@@ -47,11 +63,9 @@ app.get('/campgrounds/new',(req,res)=>
 });
 
 //new campground data
-app.post('/campgrounds',catchAsync(
+app.post('/campgrounds',validateCampground,catchAsync(
     async(req,res)=>
-    {
-            // res.send(req.body.campground);
-            if(!req.body.campground) throw new ExpressError('Insufficint data',400)
+    {   
             const campground=new Campground(req.body.campground);
             await campground.save();
             // console.log(campground._id);
@@ -67,7 +81,7 @@ app.get('/campgrounds/:id/edit',catchAsync(async (req,res)=>{
     // console.log(campground.title);
     res.render('campgrounds/edit',{campground});
 }));
-app.put('/campgrounds/:id',catchAsync(async(req,res)=>{
+app.put('/campgrounds/:id',validateCampground,catchAsync(async(req,res)=>{
     const {id}=req.params;
     // console.log(id);
     const campground=await Campground.findByIdAndUpdate(id,{...req.body.campground});
@@ -84,7 +98,17 @@ app.delete('/campgrounds/:id',catchAsync(async (req,res)=>
     const campground=await Campground.findByIdAndDelete(id);
     res.redirect(`/campgrounds`);
 }));
-
+//Review model form route
+app.post('/campground/:id/review',catchAsync(async(req,res)=>
+    {
+        const review=new Review(req.body.review);
+        const campground=await Campground.findById(req.params.id);
+        campground.reviews.push(review);
+        await review.save();
+        await campground.save();
+        res.redirect(`/campgrounds/${campground._id}`);
+    }
+));
 app.all('*',(req,res,next)=>
 {
     next(new ExpressError('Route not found',400));
