@@ -7,7 +7,7 @@ const methodOverride = require('method-override');//for typecasting post form me
 const catchAsync = require('./utils/CatchAsync');////Async Error hanadling function
 const ExpressError = require('./utils/ExpressError');//Custom Error handaling class
 const Joi = require('joi');//for Server side validations
-const {campgroundSchema}=require('./schemas')//Using serever side Schema
+const {campgroundSchema , reviewSchema }=require('./schemas')//Using serever side Schema
 const Review=require('./models/review');//Review Model
 
 //Db connection
@@ -33,11 +33,26 @@ app.set('views',path.join(__dirname,'views'));
 app.use(express.urlencoded({extended:true}));
 // override with POST having ?_method=DELETE/PATCH
 app.use(methodOverride('_method'))
-//for server side validation
+//for server side validation of new/edit campground form
 const validateCampground = (req,res,next)=>
 {
     // console.log(req)
     const {error}=campgroundSchema.validate(req.body);
+    if(error)
+    {
+        const message=error.details.map(element=>element.message).join(',')
+        throw new ExpressError(message,400)
+    } 
+    else
+    {
+        next();
+    }
+}    
+//for server side validation of review form
+const validateReview= (req,res,next)=>
+{
+    // console.log(req)
+    const {error}=reviewSchema.validate(req.body);
     if(error)
     {
         const message=error.details.map(element=>element.message).join(',')
@@ -89,7 +104,9 @@ app.put('/campgrounds/:id',validateCampground,catchAsync(async(req,res)=>{
 }));
 
 app.get('/campgrounds/:id',catchAsync(async (req,res)=>{
-    const campground=await Campground.findById(req.params.id);
+    const campground=await Campground.findById(req.params.id).populate('reviews');
+    // const campground=await Campground.findById(req.params.id);
+    // console.log(campground)
     res.render('campgrounds/show',{campground});
 }));
 app.delete('/campgrounds/:id',catchAsync(async (req,res)=>
@@ -99,7 +116,7 @@ app.delete('/campgrounds/:id',catchAsync(async (req,res)=>
     res.redirect(`/campgrounds`);
 }));
 //Review model form route
-app.post('/campground/:id/review',catchAsync(async(req,res)=>
+app.post('/campgrounds/:id/review',validateReview,catchAsync(async(req,res)=>
     {
         const review=new Review(req.body.review);
         const campground=await Campground.findById(req.params.id);
@@ -109,9 +126,18 @@ app.post('/campground/:id/review',catchAsync(async(req,res)=>
         res.redirect(`/campgrounds/${campground._id}`);
     }
 ));
+app.delete('/campgrounds/:id/review/:reviewId',catchAsync(async(req,res)=>
+    {
+        const {id,reviewId}=req.params;
+        await Campground.findByIdAndUpdate(id,{$pull:{reviews:reviewId}});
+        await Review.findByIdAndDelete(reviewId);
+        res.redirect(`/campgrounds/${id}`);
+        // res.send('At correct route');
+    }
+));
 app.all('*',(req,res,next)=>
 {
-    next(new ExpressError('Route not found',400));
+    next(new ExpressError('Route not found',404));
 });
 app.use((err,req,res,next)=>
 {
