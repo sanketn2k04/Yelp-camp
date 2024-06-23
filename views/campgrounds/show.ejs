@@ -1,7 +1,7 @@
 <% layout('/layouts/boilerplate') -%>
 
 <div class="row">
-    <div class="col-6 offset-3 mb-3">
+    <div class="col-6 mb-3">
         <img src="<%= campground.image %>" class="card-img-top img-thumbnail" alt="<%= campground.title %>">
     <div class="card-body">
         <h5 class="card-title"><%= campground.title %></h5>
@@ -20,21 +20,46 @@
     <footer class="card-footer text-body-tertiary">
         2 days ago
     </footer>
-    <h3>Leave a Review</h3>
-    <form method="post" action="/campground/<%= campground._id  %>/review" class="mb-3 needs-validation" novalidate>
-        <div class="mb-3">
-            <label for="rating" class="form-label">Rating</label>
-            <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
-        </div>
-        <div class="mb-3">
-            <label for="review" class="form-label">Review</label>
-            <textarea class="form-control" name="review[body]" id="review" col=10 row="3" required></textarea>
-            <div class="valid-feedback">
-                Looks good !
+    </div>
+    <div class="col-6">
+        <h3>Leave a Review</h3>
+        <form method="post" action="/campgrounds/<%= campground._id  %>/review" class="mb-3 needs-validation" novalidate>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
             </div>
+            <div class="mb-3">
+                <label for="review" class="form-label">Review</label>
+                <textarea class="form-control" name="review[body]" id="review" col=10 row="3" required></textarea>
+                <div class="valid-feedback">
+                    Looks good !
+                </div>
+            </div>
+            <button class="btn btn-success">Submit</button>
+        </form>
+        <div class="mb-3">
+            <% let avg=0;%>
+            <% let count=0;%>
+            <% for(let review of campground.reviews){ %>
+                <% avg+=review.rating; %>
+                <% count++; %>
+            <% } %>
+            <button type="button" class="btn btn-warning" aria-disabled="true">
+                <% const AvgR=count!=0?avg/count:0; %>
+                Average Rating <span class="badge text-bg-secondary"><%= AvgR %></span>
+            </button>
         </div>
-        <button class="btn btn-success">Submit</button>
-    </form>
+        <% for(let review of campground.reviews){ %>
+            <div class="mb-3 card">
+                <div class="card-body">
+                    <h5 class="card-title">Reating: <%= review.rating %></h5>
+                    <p class="card-text">Review: <%= review.body %></p>
+                    <form method="POST" action="/campgrounds/<%= campground._id %>/review/<%= review._id %>?_method=Delete">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>
 
