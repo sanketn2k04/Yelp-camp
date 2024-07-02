@@ -4,6 +4,7 @@ const catchAsync = require("../utils/CatchAsync"); ////Async Error hanadling fun
 const ExpressError = require("../utils/ExpressError"); //Custom Error handaling class
 const { campgroundSchema } = require("../schemas"); //Using serever side Schema
 const Campground = require("../models/campground"); //Model import from models folder
+const {isLoggedIn}=require('../middleware')//isLoggedIn middleware
 
 //for server side validation of new/edit campground form
 const validateCampground = (req, res, next) => {
@@ -26,7 +27,7 @@ router.get(
   })
 );
 //for new campround creation form page
-router.get("/new", (req, res) => {
+router.get("/new",isLoggedIn,(req, res) => {
   res.render("campgrounds/new");
 });
 
@@ -34,6 +35,7 @@ router.get("/new", (req, res) => {
 router.post(
   "/",
   validateCampground,
+  isLoggedIn,
   catchAsync(async (req, res) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -46,6 +48,7 @@ router.post(
 
 router.get(
   "/:id/edit",
+  isLoggedIn,
   catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     // console.log(campground.title);
@@ -61,6 +64,7 @@ router.get(
 router.put(
   "/:id",
   validateCampground,
+  isLoggedIn,
   catchAsync(async (req, res) => {
     const { id } = req.params;
     // console.log(id);
@@ -90,6 +94,7 @@ router.get(
 );
 router.delete(
   "/:id",
+  isLoggedIn,
   catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);

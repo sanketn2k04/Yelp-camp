@@ -9,8 +9,14 @@ const Joi = require("joi"); //for Server side validations
 const Review = require("./models/review"); //Review Model
 const campgroundRoutes = require("./routes/campground"); //campground routes
 const reviewRoutes = require("./routes/review"); //review routes
+const usersRoute=require("./routes/users")//User Authentication routes
 const session = require("express-session"); //session creation and for flash
 const flash = require("connect-flash"); //imports the 'connect-flash' module using the 'require' function in Node.js.
+const passport=require("passport");//for authentication
+const localStratagy=require("passport-local");//for authentication
+const User=require('./models/user');
+const isLoggedIn=require('./middleware')//isLoggedin middleware
+
 
 //Db connection
 const dburl = "mongodb://localhost:27017/yelp-camp"; //url shortForm
@@ -52,9 +58,20 @@ without any additional configuration.*/
 app.use(session(sessionConfig));
 app.use(flash());
 
+app.use(passport.initialize());
+// make sure that session is used before passport.session 
+app.use(passport.session());//for persistent login sessions versus the alternative would be having to log in on every single request, which is actually something you do often with APIs but not as a user with
+
+passport.use(new localStratagy(User.authenticate()));//using authenticate methood of passport
 
 
-
+/*
+Serialization refers to basically,how do we store a user in the session.
+And then the opposite, deserialize,how do you get a user out of that session 
+---> Basically how to store it and unstore it in this session. 
+*/
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
   res.locals.success=req.flash('success');
@@ -66,6 +83,7 @@ app.use((req,res,next)=>{
 app.get("/", (req, res) => {
   res.render("home.ejs");
 });
+app.use("/", usersRoute); //Breaking Out User authentication Routes
 app.use("/campgrounds", campgroundRoutes); //Breaking Out Campground Routes
 app.use("/campgrounds/:id/review", reviewRoutes); //Breaking Out Review Routes
 
