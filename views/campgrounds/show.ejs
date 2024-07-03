@@ -8,20 +8,24 @@
         <p class="card-text"><%= campground.description %></p>
     </div>
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><%= campground.location %></li>
+        <li class="list-group-item text-body-tertiary"><%= campground.location %></li>
+        <li class="list-group-item">&#128104; Created by: <%= campground.author.username %></li>
         <li class="list-group-item">$<%= campground.price %>/night</li>
     </ul>
-    <div class="card-body">
-        <a href="/campgrounds/<%= campground._id %>/edit" class="card-link btn btn-primary" >Edit</a>
-        <form class="d-inline" method="POST" action="/campgrounds/<%= campground._id %>?_method=Delete">
-            <button class="btn btn-danger">Delete</button>
-        </form>
-    </div>
+    <% if(currUser && campground.author.equals(currUser._id)){ %>
+        <div class="card-body">
+            <a href="/campgrounds/<%= campground._id %>/edit" class="card-link btn btn-primary" >Edit</a>
+            <form class="d-inline" method="POST" action="/campgrounds/<%= campground._id %>?_method=Delete">
+                <button class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    <% } %>    
     <footer class="card-footer text-body-tertiary">
         2 days ago
     </footer>
-    </div>
+    </div>    
     <div class="col-6">
+        <% if(currUser){ %>
         <h3>Leave a Review</h3>
         <form method="post" action="/campgrounds/<%= campground._id  %>/review" class="mb-3 needs-validation" novalidate>
             <div class="mb-3">
@@ -37,6 +41,7 @@
             </div>
             <button class="btn btn-success">Submit</button>
         </form>
+        <% } %>
         <div class="mb-3">
             <% let avg=0;%>
             <% let count=0;%>
@@ -52,11 +57,14 @@
         <% for(let review of campground.reviews){ %>
             <div class="mb-3 card">
                 <div class="card-body">
-                    <h5 class="card-title">Reating: <%= review.rating %></h5>
-                    <p class="card-text">Review: <%= review.body %></p>
+                    <h4 class="card-title">Reating: <%= review.rating %></h4>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">By @<%= review.author.username %></h6>
+                    <p class="card-text"> <%= review.body %></p>
+                    <% if(currUser && review.author.equals(currUser._id)){ %>
                     <form method="POST" action="/campgrounds/<%= campground._id %>/review/<%= review._id %>?_method=Delete">
                         <button class="btn btn-danger">Delete</button>
                     </form>
+                    <% } %>
                 </div>
             </div>
         <% } %>

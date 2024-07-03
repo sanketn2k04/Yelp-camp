@@ -36,7 +36,7 @@ app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-//Middle wares
+//Middlewares
 app.use(express.urlencoded({ extended: true }));
 // override with POST having ?_method=DELETE/PATCH
 app.use(methodOverride("_method"));
@@ -74,7 +74,9 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
-  res.locals.success=req.flash('success');
+  // console.log(req.session);
+  res.locals.currUser=req.user;//for determining wheather the user logged in or not
+  res.locals.success=req.flash('success');//for flash messages
   // console.log(res.locals.success)
   res.locals.error=req.flash('error');
   next();

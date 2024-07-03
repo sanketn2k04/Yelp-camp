@@ -3,6 +3,7 @@ const router = express.Router();
 const User=require('../models/user')//Importing user model
 const catchAsync = require("../utils/CatchAsync"); ////Async Error hanadling function
 const passport=require('passport');
+const {storeReturnTo}=require('../middleware');
 
 router.get('/register',(req,res)=>
 {
@@ -10,14 +11,17 @@ router.get('/register',(req,res)=>
 })
 
 router.post('/register',catchAsync(
-    async (req,res)=>{
+    async (req,res,next)=>{
         try
         {
             const {email,username,password}=req.body;
             const user=new User({username,email});
             const registeredUser=await User.register(user,password);
-            req.flash('success','Welcome to Yelp-camp');
-            res.redirect('/campgrounds')
+            req.login(registeredUser,(err)=>{
+                if(err) return next(err);
+                req.flash('success','Welcome to Yelp-camp');
+                res.redirect('/campgrounds');
+            });
         }
         catch(e)
         {
@@ -39,9 +43,14 @@ So after that, we have some options,we can specify in an object and I'm gonna do
 one of them, which is true.It's just gonna flash a message for us automatically.And then we'll also 
 set failure redirect if things go wrong.Redirect, I want you to redirect to slash login again. 
 */
-router.post('/login',passport.authenticate('local',{failureFlash:true,failureRedirect:'/login'}),(req,res)=>{
+router.post('/login', // use the storeReturnTo middleware to save the returnTo value from session to res.locals
+    storeReturnTo,
+    // passport.authenticate logs the user in and clears req.session
+    passport.authenticate('local',{failureFlash:true,failureRedirect:'/login'}),(req,res)=>{
     req.flash('success','Welcome back!');
-    res.redirect('/campgrounds');
+    const redirectUrl=res.locals.returnTo || '/campgrounds';
+    // delete redirectUrl;
+    res.redirect(redirectUrl);
 })
 
 router.get('/logout',(req,res)=>
