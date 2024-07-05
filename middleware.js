@@ -33,6 +33,7 @@ module.exports.validateCampground = (req, res, next) => {
 //to verify Author
 module.exports.isAuthor = async (req, res, next) => {
   const { id } = req.params;
+  // console.log(id);
   const campground = await Campground.findById(id);
   if (!campground.author.equals(req.user._id)) {
     req.flash("error", "You have not permission to do so!");
