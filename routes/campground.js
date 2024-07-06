@@ -6,25 +6,25 @@ const Campground = require("../models/campground"); //Model import from models f
 const {isLoggedIn,isAuthor,validateCampground}=require('../middleware')//isLoggedIn middleware
 
 
-//All campgrounds
-router.get("/", catchAsync(campgrounds.index));
+
+//All campgrounds & new campground data
+router.route('/')
+    .get(catchAsync(campgrounds.index))
+    .post(validateCampground,isLoggedIn,catchAsync(campgrounds.createCampground))
+
+
 
 //for new campround creation form page
 router.get("/new",isLoggedIn,campgrounds.renderNewForm);
 
-//new campground data
-router.post("/",validateCampground,isLoggedIn,catchAsync(campgrounds.createCampground));
 
 //update form
 router.get("/:id/edit",isLoggedIn,isAuthor,catchAsync(campgrounds.renderEditForm));
 
-//update
-router.put("/:id",validateCampground,isLoggedIn,isAuthor,catchAsync(campgrounds.updateCampground));
-
-//show page
-router.get("/:id",catchAsync(campgrounds.showCampground));
-
-//delete route
-router.delete("/:id",isLoggedIn,isAuthor,catchAsync(campgrounds.deleteCampground));
+//update , show page & delete route
+router.route('/:id')
+    .put(validateCampground,isLoggedIn,isAuthor,catchAsync(campgrounds.updateCampground))
+    .get(catchAsync(campgrounds.showCampground))
+    .delete(isLoggedIn,isAuthor,catchAsync(campgrounds.deleteCampground))
 
 module.exports = router;
