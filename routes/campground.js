@@ -3,14 +3,20 @@ const router = express.Router();
 const catchAsync = require("../utils/CatchAsync"); ////Async Error hanadling function
 const campgrounds=require('../controllers/campground');//controller functions
 const Campground = require("../models/campground"); //Model import from models folder
-const {isLoggedIn,isAuthor,validateCampground}=require('../middleware')//isLoggedIn middleware
-
-
+const {isLoggedIn,isAuthor,validateCampground}=require('../middleware');//isLoggedIn middleware
+const multer = require("multer");
+const {storage}=require('../cloudinary/');
+const upload = multer({ storage });
 
 //All campgrounds & new campground data
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(validateCampground,isLoggedIn,catchAsync(campgrounds.createCampground))
+    // .post(validateCampground,isLoggedIn,catchAsync(campgrounds.createCampground))
+    .post(upload.array('image'),(req,res)=>{
+        console.log(req.files,req.body)
+        res.send(req.files)
+
+    })
 
 
 
