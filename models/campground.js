@@ -7,7 +7,12 @@ const Schema=mongoose.Schema;
 const campgroundSchema=new Schema({
     title:String,
     price:Number,
-    image:String,
+    images:[
+        {
+            url:String,
+            filename:String,
+        }
+    ],
     description:String,
     location:String,
     author:{

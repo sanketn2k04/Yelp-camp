@@ -3,7 +3,9 @@
 
     <div class="row">
         <div class="col-6 mb-3">
-            <img src="<%= campground.image %>" class="card-img-top img-thumbnail" alt="<%= campground.title %>">
+            <% for(let img of campground.images) {%>
+                <img src="<%= img.url %>" class="card-img-top img-thumbnail" alt="<%= campground.title %>">
+            <% } %>
             <div class="card-body">
                 <h5 class="card-title">
                     <%= campground.title %>

@@ -7,7 +7,8 @@ module.exports.campgroundSchema=Joi.object(
             price:Joi.number().min(0).required(),
             location:Joi.string().required(),
             description:Joi.required(),
-            image:Joi.string().required()
+            // image:Joi.string().required() 
+            //commented to check cloudinary images works/not
         }).required()
     }
 )
