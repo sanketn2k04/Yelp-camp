@@ -30,7 +30,7 @@ router.get("/:id/edit",isLoggedIn,isAuthor,catchAsync(campgrounds.renderEditForm
 
 //update , show page & delete route
 router.route('/:id')
-    .put(isLoggedIn,validateCampground,isAuthor,catchAsync(campgrounds.updateCampground))
+    .put(isLoggedIn,isAuthor,upload.array('image'),validateCampground,catchAsync(campgrounds.updateCampground))
     .get(catchAsync(campgrounds.showCampground))
     .delete(isLoggedIn,isAuthor,catchAsync(campgrounds.deleteCampground))
 

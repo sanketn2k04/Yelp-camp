@@ -38,6 +38,10 @@ module.exports.updateCampground=async (req, res) => {
   const campground = await Campground.findByIdAndUpdate(id, {
     ...req.body.campground,
   });
+  const imgs=req.files.map(f=>({url:f.path,filename:f.filename}));
+  campground.images.push(...imgs);
+  // console.log(campground);
+  await campground.save();
   req.flash('success','Campground updated sucessfully');
   res.redirect(`/campgrounds/${campground._id}`);
 };
@@ -59,6 +63,7 @@ module.exports.showCampground=async (req, res) => {
     }
   // const campground=await Campground.findById(req.params.id);
   // console.log(campground)
+  // console.log(campground);
   res.render("campgrounds/show", { campground });
 };
 

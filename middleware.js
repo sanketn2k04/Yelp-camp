@@ -21,7 +21,7 @@ module.exports.storeReturnTo = (req, res, next) => {
 
 //for server side validation of new/edit campground form
 module.exports.validateCampground = (req, res, next) => {
-  // console.log(req)
+  // console.log(req.body)
   const { error } = campgroundSchema.validate(req.body);
   if (error) {
     const message = error.details.map((element) => element.message).join(",");

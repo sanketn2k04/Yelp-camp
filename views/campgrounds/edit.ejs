@@ -3,19 +3,11 @@
     <div class="row">
         <h1 class="text-center">Edit campground</h1>
         <div class="col-6 offset-3">
-            <form method="POST" action="/campgrounds/<%= campground._id %>?_method=PUT " novalidate class="needs-validation">
+            <form method="POST" action="/campgrounds/<%= campground._id %>?_method=PUT " novalidate class="needs-validation" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="title" class="form-label">Title</label>
                     <input type="text" class="form-control " name="campground[title]" id="title"
                         value="<%= campground.title %>" required>
-                        <div class="valid-feedback">
-                            Looks good !
-                        </div>
-                </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label">Image URL</label>
-                    <input type="text" class="form-control " name="campground[image]" id="image"
-                        value="<%= campground.image %>" required>
                         <div class="valid-feedback">
                             Looks good !
                         </div>
@@ -39,6 +31,11 @@
                         id="description" required><%= campground.description %></textarea>
                 </div>
 
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Images here</label>
+                    <input class="form-control" type="file" name="image" id="image" multiple>
+                </div>
+                
                 <div class="mb-3">
                     <button class="btn btn-info">Update Campground</button>
                 </div>
