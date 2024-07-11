@@ -9,7 +9,8 @@ module.exports.campgroundSchema=Joi.object(
             description:Joi.required(),
             // image:Joi.string().required() 
             //commented to check cloudinary images works/not
-        }).required()
+        }).required(),
+        deleteImages:Joi.array(),
     }
 )
 

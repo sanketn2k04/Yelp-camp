@@ -1,5 +1,6 @@
 const Campground = require("../models/campground"); //Model import from models folder
 const {isLoggedIn,isAuthor,validateCampground}=require('../middleware')//isLoggedIn middleware
+const {cloudinary}=require('../cloudinary/');
 
 module.exports.index = async (req, res) => {
   const campgrounds = await Campground.find({});
@@ -34,13 +35,22 @@ module.exports.renderEditForm=async (req, res) => {
 
 module.exports.updateCampground=async (req, res) => {
   const { id } = req.params;
-  // console.log(id);
+  // console.log(req.body);
   const campground = await Campground.findByIdAndUpdate(id, {
     ...req.body.campground,
   });
   const imgs=req.files.map(f=>({url:f.path,filename:f.filename}));
   campground.images.push(...imgs);
-  // console.log(campground);
+  console.log(req.body.deleteImages);
+  if(req.body.deleteImages){
+    req.body.deleteImages.forEach(filename => {
+      console.log(filename);
+      cloudinary.uploader.destroy(filename);
+    });
+    console.log(campground);
+    await campground.updateOne({$pull:{images:{filename:{$in:req.body.deleteImages}}}});
+    console.log(campground);
+  }
   await campground.save();
   req.flash('success','Campground updated sucessfully');
   res.redirect(`/campgrounds/${campground._id}`);
