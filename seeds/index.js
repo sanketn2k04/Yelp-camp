@@ -37,6 +37,13 @@ const seedDB=async()=>{
                   filename: 'Yelp-camp/xcq94iizjug8ckah2sfh',
                 }
             ],
+            geometry:{
+                type:"Point",
+                coordinates:[
+                    cities[random1000].longitude,
+                    cities[random1000].latitude,
+                ]
+            },
             description : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Error similique veniam provident molestiae, quasi praesentium illo labore porro aut, perspiciatis qui, eaque magni non voluptas ab sunt nam? Mollitia, debitis.",
             price
         });

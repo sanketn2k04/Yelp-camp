@@ -13,7 +13,10 @@ imageSchema.virtual('thumbnail').get(function(){
     return this.url.replace('/upload/','/upload/w_200/');
     // virtual keyword is used to define a virtual property on a schema. A virtual property is not stored 
     // in the database but is computed on the fly based on other properties of the document.
-})
+});
+
+const opts={toJSON:{virtuals:true}}
+
 const campgroundSchema=new Schema({
     title:String,
     price:Number,
@@ -41,6 +44,15 @@ const campgroundSchema=new Schema({
             ref:'Review',
         }
     ]
+},opts);
+
+campgroundSchema.virtual('properties.popUpMarkUp').get(function(){
+    return `<strong>
+                <a href="/campgrounds/${this._id}">${this.title}</a>
+            </strong>
+            <p>${this.description.substring(0,20)}...</p>`;
+    // virtual keyword is used to define a virtual property on a schema. A virtual property is not stored 
+    // in the database but is computed on the fly based on other properties of the document.
 });
 
 campgroundSchema.post('findOneAndDelete',async function(doc)
