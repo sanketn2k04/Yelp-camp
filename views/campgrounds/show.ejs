@@ -3,7 +3,6 @@
 
     <div class="row">
         <div class="col-6 mb-3">
-            <div id="map" style="width: 400px; height: 300px;"></div>
             <div id="campgroundCaeousel" class="carousel slide">
                 <div class="carousel-inner">
                 <% campground.images.forEach((img,i) =>{%>
@@ -53,6 +52,7 @@
                     </footer>
         </div>
         <div class="col-6">
+            <div id="map" class="mb-3"></div>
             <% if(currUser){ %>
                 <h3>Leave a Review</h3>
                 <form method="post" action="/campgrounds/<%= campground._id  %>/review" class="mb-3 needs-validation"
