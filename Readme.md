@@ -1,6 +1,5 @@
 # Yelp Camp
 
-![Yelp Camp Logo](path/to/logo.png)
 
 ## Table of Contents
 - [Introduction](#introduction)
